@@ -1,0 +1,59 @@
+import pandas as pd
+import flask
+from flask import abort
+from flask_cors import CORS, cross_origin
+import json
+import csv
+from flask import request, jsonify
+
+
+
+#put the path of file
+excel_data_df = pd.read_csv('someCSV', nrows=10)
+json_str = excel_data_df.set_index("Pricipal column").to_dict("principal column")#snipt to define how is the column that ll'gona be the index
+
+
+
+
+app = flask.Flask(__name__)
+app.config["DEBUG"] = True
+app.config['CORS_HEADERS'] = 'Content-Type'
+cors = CORS(app)
+@cross_origin()
+@app.route('/', methods=['GET'])
+def index():
+    return '''<h1>Distant Reading Archive</h1>
+<p>A prototype API for distant reading of science fiction novels.</p>'''
+
+
+# A route to return all of the available entries in our catalog.
+@app.route('/api/v1/resources/books/all', methods=['GET'])
+def api_all():
+    return jsonify(json_str)
+
+
+
+@app.route('/api/v1/resources/books/', methods=['GET'])
+def api_id():
+    #set the string used in the browser to get the value
+    # Check if an ID was provided as part of the URL.
+    # If ID is provided, assign it to a variable.
+    # If no ID is provided, display an error in the browser.
+    if 'key on browser' in request.args:
+        id = str(request.args.get('key on browser'))
+        json_str[id]
+
+    elif len(id) == 0:
+        abort(404)
+        print(request.args)
+    else:
+        return "Error: No id field provided. Please specify an id."
+
+    return jsonify(json_str[id])
+
+
+
+
+
+
+app.run(host='localhost',port=80)
